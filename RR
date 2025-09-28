@@ -1,0 +1,141 @@
+<!doctype html><html lang="th"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RR Calculator (PWA)</title>
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABl8KqfAAAACXBIWXMAAAsSAAALEgHS3X78AAABi0lEQVR4nO3SMQGCMBAF0R0zq1m2m5y2o0H4J5S1mC1R0n5w0d1nFQm1WgK4y7k7w3w6f1v0wAAAAAAAAAAAAAAAAAAAAAAAPy9F9b1f6kKpCkq3Z6t9m5vJ7m9C9N9wz2Qqv5L3m3G6T0xCk1wZxW8v28rjQ3qk5w4C2Qv8qg2e9kZb3qJtA3i7p9c9u7n0m1h4g0l0b0bVs8g9V0p7Gqm0Gkqkq9cYbqfCwOa7yO0b8D9cG+3wKk8lG7Xz7gqG0yT9QXo9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWh6wZf7lC9fC7y2oRk0H2c8Hqxxqk3m1cYf9C3d9u9z8y8k2kWl9yQ9cZb3cZb3cZb3cZb3cZb3cZb3cZb3cZb3Qd8O5g7z0AAAAAAAAAAAAAAAAAAAAAAAB8vw8r0r0c8m0AAAAAElFTkSuQmCC">
+<!-- Inline manifest -->
+<script id="__manifest" type="application/json">{
+  "name": "RR Calculator",
+  "short_name": "RR Calc",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": [{
+    "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABl8KqfAAAACXBIWXMAAAsSAAALEgHS3X78AAABi0lEQVR4nO3SMQGCMBAF0R0zq1m2m5y2o0H4J5S1mC1R0n5w0d1nFQm1WgK4y7k7w3w6f1v0wAAAAAAAAAAAAAAAAAAAAAAAPy9F9b1f6kKpCkq3Z6t9m5vJ7m9C9N9wz2Qqv5L3m3G6T0xCk1wZxW8v28rjQ3qk5w4C2Qv8qg2e9kZb3qJtA3i7p9c9u7n0m1h4g0l0b0bVs8g9V0p7Gqm0Gkqkq9cYbqfCwOa7yO0b8D9cG+3wKk8lG7Xz7gqG0yT9QXo9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWg9s6Q9QWh6wZf7lC9fC7y2oRk0H2c8Hqxxqk3m1cYf9C3d9u9z8y8k2kWl9yQ9cZb3cZb3cZb3cZb3cZb3cZb3cZb3cZb3Qd8O5g7z0AAAAAAAAAAAAAAAAAAAAAAAB8vw8r0r0c8m0AAAAAElFTkSuQmCC",
+    "sizes": "192x192", "type": "image/png"
+  }]
+}</script>
+<script>
+(function(){ // attach manifest blob so Chrome detects it
+  const m = document.getElementById('__manifest').textContent;
+  const url = URL.createObjectURL(new Blob([m], {type:'application/json'}));
+  const link = document.createElement('link'); link.rel='manifest'; link.href=url; document.head.appendChild(link);
+})();
+</script>
+<style>
+:root{--bg:#0b1220;--card:#0f172a;--muted:#9aa4b2;--text:#e7edf5;--border:#1c2537}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto}
+.wrap{max-width:560px;margin:0 auto;padding:8px}
+.top{position:sticky;top:0;z-index:9;background:rgba(11,18,32,.98);backdrop-filter:blur(4px);border-bottom:1px solid var(--border)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px}
+.kpi .lab{color:var(--muted);font-size:11px}.kpi .val{font-size:18px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;margin-top:8px}
+label{font-size:11px;color:var(--muted)}input{width:100%;height:36px;background:#0b1426;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:15px}
+.toolbar{display:flex;gap:6px;align-items:center}.btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:#0b1426;color:#e7edf5;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid var(--border);padding:6px;text-align:center}th{color:var(--muted);font-weight:600}.narrow{max-width:88px}
+</style>
+</head><body>
+
+<!-- APP UI -->
+<div class="top"><div class="kpis">
+  <div class="kpi"><div class="lab">Risk รวม</div><div class="val" id="riskSum">0</div></div>
+  <div class="kpi"><div class="lab">Reward รวม</div><div class="val" id="rewardSum">0</div></div>
+  <div class="kpi"><div class="lab">RR</div><div class="val" id="rrVal">-</div></div>
+</div></div>
+<div class="wrap"><div class="card">
+  <div class="toolbar" style="justify-content:space-between;margin-bottom:6px">
+    <div style="display:flex;gap:6px;align-items:center"><label for="mul">ตัวคูณ/จุด</label><input id="mul" class="narrow" type="number" inputmode="decimal" value="1" step="0.0001" min="0"></div>
+    <div style="display:flex;gap:6px"><button id="add" class="btn">+ เพิ่มไม้</button><button id="save" class="btn">บันทึก</button><button id="load" class="btn">โหลด</button></div>
+  </div>
+  <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Lot</th><th>SL</th><th>TP</th><th>Risk</th><th>Reward</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+</div></div>
+
+<!-- Service Worker (inline via blob) -->
+<script>
+if('serviceWorker' in navigator){
+  const sw=`const CACHE='rr-cache-v1';const ASSETS=['./'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))}); 
+self.addEventListener('activate',e=>self.clients.claim());
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});
+`;
+  const url=URL.createObjectURL(new Blob([sw],{type:'text/javascript'}));
+  navigator.serviceWorker.register(url);
+}
+</script>
+
+<!-- App Logic -->
+<script>
+(function(){
+  const $=s=>document.querySelector(s),
+        fmt=n=>new Intl.NumberFormat('th-TH',{maximumFractionDigits:6}).format(n),
+        nz=v=>{const n=Number(String(v).replace(',','.').trim());return Number.isFinite(n)&&n>=0?n:0;};
+
+  /** data */
+  let legs=[{id:1,lot:0.03,sl:1000,tp:0},{id:2,lot:0.05,sl:600,tp:400},{id:3,lot:0.07,sl:200,tp:800}];
+  const tb=$('#tb'), mulEl=$('#mul'), riskSum=$('#riskSum'), rewardSum=$('#rewardSum'), rrVal=$('#rrVal');
+
+  function totals(){
+    const m=nz(mulEl.value); let r=0,w=0;
+    legs.forEach(l=>{ r+=l.lot*l.sl*m; w+=l.lot*l.tp*m; });
+    riskSum.textContent=fmt(r); rewardSum.textContent=fmt(w);
+    rrVal.textContent= r>0 ? fmt(w/r) : '-';
+  }
+
+  function row(l){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${l.id}</td>
+      <td><input class="narrow" type="number" inputmode="decimal" step="0.0001" min="0" value="${l.lot}"></td>
+      <td><input class="narrow" type="number" inputmode="decimal" step="1" min="0" value="${l.sl}"></td>
+      <td><input class="narrow" type="number" inputmode="decimal" step="1" min="0" value="${l.tp}"></td>
+      <td class="rk"></td>
+      <td class="rw"></td>
+      <td><button class="btn" style="height:30px;padding:0 8px">ลบ</button></td>`;
+    const [lotI,slI,tpI]=tr.querySelectorAll('input');
+    const rk=tr.querySelector('.rk'), rw=tr.querySelector('.rw');
+
+    function upd(){
+      l.lot=nz(lotI.value); l.sl=nz(slI.value); l.tp=nz(tpI.value);
+      const m=nz(mulEl.value);
+      rk.textContent=fmt(l.lot*l.sl*m); rw.textContent=fmt(l.lot*l.tp*m);
+      totals(); save();
+    }
+    [lotI,slI,tpI].forEach(i=>i.addEventListener('input',upd));
+    tr.querySelector('button').onclick=()=>{ legs=legs.filter(x=>x.id!==l.id); render(); save(); };
+    upd(); return tr;
+  }
+
+  function render(){
+    legs = legs.map((x,i)=>({...x,id:i+1}));
+    tb.innerHTML=''; legs.forEach(l=>tb.appendChild(row(l)));
+    totals();
+  }
+
+  function add(){ const last=legs[legs.length-1]; legs.push({id:(last?.id||0)+1, lot:0.01, sl:100, tp:100}); render(); }
+
+  const KEY='rr_mobile_ultra_compact_pwa_v1';
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify({legs, mul: mulEl.value})) }catch(e){} }
+  function load(){
+    try{
+      const raw=localStorage.getItem(KEY); if(!raw) return false;
+      const o=JSON.parse(raw);
+      if(Array.isArray(o.legs)&&o.legs.length){
+        legs=o.legs.map(p=>({id:p.id|0, lot:nz(p.lot), sl:nz(p.sl), tp:nz(p.tp)}));
+      }
+      mulEl.value = nz(o.mul)||1; render(); return true;
+    }catch(e){ return false; }
+  }
+
+  document.querySelector('#add').onclick=add;
+  document.querySelector('#save').onclick=()=>{ save(); alert('บันทึกแล้ว'); };
+  document.querySelector('#load').onclick=()=>{ alert(load()?'โหลดแล้ว':'ยังไม่มีข้อมูล'); };
+  mulEl.addEventListener('input',()=>{ render(); save(); });
+
+  render(); // init
+})();
+</script>
+</body></html>
